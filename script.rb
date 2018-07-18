@@ -2,10 +2,12 @@
 # string to another method to split it to n-grams
 require 'pp'
 
+# prefix tree
+
 class MostCommonNGrams
 
   def initialize
-    @file_contents = File.open("easier.txt", "r").read
+    @file_contents = File.open("sample.txt", "r").read
     @phrases = Hash.new
     @sentences = []
   end
@@ -69,6 +71,14 @@ class MostCommonNGrams
     end
   end
 
+  def filter_non_repeats
+    @phrases.each do |phrase, freq|
+      if freq == 1
+        @phrases.delete(phrase)
+      end
+    end
+  end
+
   def filter_subsets
     i = 0
     phrase_keys = @phrases.keys
@@ -84,7 +94,6 @@ class MostCommonNGrams
       end
       i+=1
     end
-
   end
 
   def count_n_grams(gram)
@@ -139,13 +148,28 @@ class MostCommonNGrams
     @phrases.sort {|a,b| b[1]<=>a[1]}
   end
 
+  def return_top_10
+    results = []
+    sorted = sort_phrases
+    if sorted.length < 10
+      len = sorted.length
+    else
+      len = 10
+    end
+    len.times do |i|
+      results << sorted[i][0]
+    end
+    results
+  end
+
   def run
     strip_new_lines_and_punc
     split_sentences
     strip_leading_whitespace
     loop_thru_sentences
+    filter_non_repeats
     filter_subsets
-    print sort_phrases[0..10]
+    puts return_top_10
   end
 
 end
